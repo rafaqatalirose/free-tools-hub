@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Free Word & Character Counter Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -32,7 +33,7 @@
         }
         textarea {
             width: 100%;
-            height: 200px;
+            height: 180px;
             padding: 15px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
@@ -45,11 +46,37 @@
         textarea:focus {
             border-color: #007bff;
         }
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            transition: background 0.2s ease;
+        }
+        .btn-clear { background: #dc3545; color: white; }
+        .btn-clear:hover { background: #c82333; }
+        .btn-download { background: #28a745; color: white; }
+        .btn-download:hover { background: #218838; }
+
+        /* Export Card Styling (Is area ki image banegi) */
+        .report-card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+            border: 1px dashed #ced4da;
+        }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
-            margin-top: 20px;
         }
         @media (max-width: 500px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -82,17 +109,16 @@
             border-radius: 6px;
             border-left: 4px solid #339af0;
         }
-        .btn-clear {
-            margin-top: 15px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
+        /* Branding Footnote for Image */
+        .branding-footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            padding-top: 10px;
+            display: none; /* Normal screen par hidden rahega, image me show hoga */
         }
-        .btn-clear:hover { background: #c82333; }
     </style>
 </head>
 <body>
@@ -101,29 +127,38 @@
     <h2>Smart Word Counter Tool</h2>
     <textarea id="textInput" placeholder="Apna text yahan paste ya type karein..."></textarea>
     
-    <button class="btn-clear" onclick="clearText()">Clear Text</button>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span class="num" id="wordCount">0</span>
-            <span class="label">Words</span>
-        </div>
-        <div class="stat-card">
-            <span class="num" id="charCount">0</span>
-            <span class="label">Characters</span>
-        </div>
-        <div class="stat-card">
-            <span class="num" id="spaceCount">0</span>
-            <span class="label">Spaces</span>
-        </div>
-        <div class="stat-card">
-            <span class="num" id="paraCount">0</span>
-            <span class="label">Paragraphs</span>
-        </div>
+    <div class="btn-container">
+        <button class="btn btn-clear" onclick="clearText()">Clear Text</button>
+        <button class="btn btn-download" onclick="downloadReportImage()">📥 Download Image Report</button>
     </div>
 
-    <div class="reading-time">
-        ⏱️ Estimated Reading Time: <strong id="readTime">0 min</strong>
+    <div id="captureArea" class="report-card">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="num" id="wordCount">0</span>
+                <span class="label">Words</span>
+            </div>
+            <div class="stat-card">
+                <span class="num" id="charCount">0</span>
+                <span class="label">Characters</span>
+            </div>
+            <div class="stat-card">
+                <span class="num" id="spaceCount">0</span>
+                <span class="label">Spaces</span>
+            </div>
+            <div class="stat-card">
+                <span class="num" id="paraCount">0</span>
+                <span class="label">Paragraphs</span>
+            </div>
+        </div>
+
+        <div class="reading-time">
+            ⏱️ Estimated Reading Time: <strong id="readTime">0 min</strong>
+        </div>
+
+        <div id="imageBranding" class="branding-footer">
+            Analyzed via <strong>everyday.odoo.com</strong> - Free Online Tools Hub
+        </div>
     </div>
 </div>
 
@@ -134,26 +169,22 @@
     const spaceCount = document.getElementById('spaceCount');
     const paraCount = document.getElementById('paraCount');
     const readTime = document.getElementById('readTime');
+    const imageBranding = document.getElementById('imageBranding');
 
     textInput.addEventListener('input', () => {
         const text = textInput.value;
         
-        // Character Count
         charCount.innerText = text.length;
         
-        // Space Count
         const spaces = text.split(" ").length - 1;
         spaceCount.innerText = spaces < 0 ? 0 : spaces;
 
-        // Word Count
         const words = text.trim().split(/\s+/).filter(item => item);
         wordCount.innerText = words.length;
 
-        // Paragraph Count
         const paragraphs = text.split(/\n+/).filter(item => item.trim() !== "");
         paraCount.innerText = paragraphs.length;
 
-        // Reading Time (Average 200 words per minute)
         const time = Math.ceil(words.length / 200);
         readTime.innerText = words.length > 0 ? time + " min" : "0 min";
     });
@@ -161,6 +192,29 @@
     function clearText() {
         textInput.value = '';
         textInput.dispatchEvent(new Event('input'));
+    }
+
+    // Advanced Image Download Function with Branding
+    function downloadReportImage() {
+        // 1. Temporary show branding footer for screenshot
+        imageBranding.style.display = 'block';
+        
+        const targetSection = document.getElementById('captureArea');
+        
+        // 2. Capture html element using html2canvas
+        html2canvas(targetSection, {
+            scale: 2, // High resolution quality
+            backgroundColor: '#ffffff'
+        }).then(canvas => {
+            // 3. Create download link
+            const downloadLink = document.createElement('a');
+            downloadLink.download = 'everyday-word-count-report.png';
+            downloadLink.href = canvas.toDataURL('image/png');
+            downloadLink.click();
+            
+            // 4. Hide branding back on the screen after capture
+            imageBranding.style.display = 'none';
+        });
     }
 </script>
 
