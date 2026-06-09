@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <h3>Strip HTML Tags</h3>
+    <textarea id="inputHtml" rows="8" style="width:100%" placeholder="Paste HTML code here..."></textarea>
+    <button onclick="stripHtml()">Strip HTML</button>
+    <textarea id="outputResult" rows="8" style="width:100%" readonly></textarea>
+
+    <script>
+        function stripHtml() {
+            const html = document.getElementById('inputHtml').value;
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            document.getElementById('outputResult').value = doc.body.textContent || "";
+        }
+    </script>
+</body>
+</html>
