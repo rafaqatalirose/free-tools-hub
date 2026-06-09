@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extra Space Remover</title>
+    <style>
+        body { font-family: sans-serif; padding: 10px; }
+        .tool-container { max-width: 800px; margin: auto; }
+        textarea { 
+            width: 100%; box-sizing: border-box; padding: 12px; 
+            margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px;
+        }
+        button { 
+            padding: 12px 20px; margin-right: 5px; margin-bottom: 10px; 
+            cursor: pointer; border: none; border-radius: 4px; width: 100%;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        @media (min-width: 600px) { button { width: auto; } }
+    </style>
+</head>
+<body>
+
+<div class="tool-container">
+    <h1>Extra Space Remover</h1>
+    <textarea id="inputText" rows="8" placeholder="Paste your text with extra spaces..."></textarea>
+    <button class="btn-primary" onclick="removeExtraSpaces()">Remove Extra Spaces</button>
+    <button class="btn-danger" onclick="clearText()">Clear</button>
+    <textarea id="outputText" rows="8" placeholder="Cleaned text..." readonly></textarea>
+</div>
+
+<script>
+    function removeExtraSpaces() {
+        const input = document.getElementById('inputText').value;
+        // Regex: 1. Trim start/end spaces, 2. Replace 2+ spaces with a single space
+        const cleaned = input.replace(/\s+/g, ' ').trim();
+        document.getElementById('outputText').value = cleaned;
+    }
+    function clearText() {
+        document.getElementById('inputText').value = '';
+        document.getElementById('outputText').value = '';
+    }
+</script>
+</body>
+</html>
