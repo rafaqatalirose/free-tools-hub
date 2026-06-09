@@ -1,0 +1,20 @@
+<textarea id="inputText" rows="6" style="width:100%" placeholder="Paste your text here..."></textarea>
+<div style="margin: 10px 0;">
+    <label><input type="checkbox" id="keepSpaces" checked> Keep Spaces</label>
+    <label><input type="checkbox" id="keepNumbers" checked> Keep Numbers</label>
+</div>
+<button onclick="cleanText()" style="padding: 10px 20px; cursor: pointer;">Remove Special Characters</button>
+<textarea id="outputText" rows="6" style="width:100%; margin-top:10px;" readonly placeholder="Cleaned text..."></textarea>
+
+<script>
+function cleanText() {
+    let text = document.getElementById('inputText').value;
+    const keepSpaces = document.getElementById('keepSpaces').checked;
+    const keepNumbers = document.getElementById('keepNumbers').checked;
+    let regexStr = '[^a-zA-Z';
+    if (keepNumbers) regexStr += '0-9';
+    if (keepSpaces) regexStr += '\\s';
+    regexStr += ']';
+    document.getElementById('outputText').value = text.replace(new RegExp(regexStr, 'g'), '');
+}
+</script>
