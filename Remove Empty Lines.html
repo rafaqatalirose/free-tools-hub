@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Empty Lines</title>
+    <style>
+        body { font-family: sans-serif; padding: 10px; }
+        .tool-container { max-width: 100%; width: 95%; margin: auto; }
+        textarea { 
+            width: 100%; 
+            box-sizing: border-box; 
+            padding: 12px; 
+            margin-bottom: 10px; 
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button { 
+            padding: 12px 20px; 
+            margin-right: 5px; 
+            margin-bottom: 10px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 4px;
+            width: 100%; 
+        }
+        .btn-primary { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        @media (min-width: 600px) {
+            .tool-container { max-width: 800px; }
+            button { width: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="tool-container">
+    <h1>Remove Empty Lines</h1>
+    <textarea id="inputText" rows="8" placeholder="Paste your text with empty lines here..."></textarea>
+    <button class="btn-primary" onclick="removeEmptyLines()">Remove Empty Lines</button>
+    <button class="btn-danger" onclick="clearText()">Clear</button>
+    <textarea id="outputText" rows="8" placeholder="Cleaned text will appear here..." readonly></textarea>
+</div>
+
+<script>
+    function removeEmptyLines() {
+        const input = document.getElementById('inputText').value;
+        // Regex: Matches lines that contain only whitespace or are completely empty
+        const cleaned = input.split(/\r?\n/).filter(line => line.trim() !== '').join('\n');
+        document.getElementById('outputText').value = cleaned;
+    }
+    function clearText() {
+        document.getElementById('inputText').value = '';
+        document.getElementById('outputText').value = '';
+    }
+</script>
+</body>
+</html>
