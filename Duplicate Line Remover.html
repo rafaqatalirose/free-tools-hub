@@ -1,17 +1,21 @@
 <div class="tool-container" style="max-width: 800px; margin: auto; padding: 20px; font-family: sans-serif;">
-    <h3>Duplicate Line Remover</h3>
-    <textarea id="inputText" rows="10" style="width: 100%; padding: 10px;" placeholder="Yahan apna text paste karein..."></textarea>
-    <br><br>
-    <button onclick="removeDuplicates()" style="padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer;">Remove Duplicates</button>
-    <button onclick="clearText()" style="padding: 10px 20px; background: #dc3545; color: white; border: none; cursor: pointer;">Clear</button>
-    <br><br>
-    <textarea id="outputText" rows="10" style="width: 100%; padding: 10px;" placeholder="Saaf kiya gaya text yahan ayega..." readonly></textarea>
+    <h1>Duplicate Line Remover</h1>
+    <p>Paste your text below to remove duplicate lines instantly.</p>
+    
+    <textarea id="inputText" rows="10" style="width: 100%; padding: 10px; margin-bottom: 10px;" placeholder="Paste your text here..."></textarea>
+    
+    <div style="margin-bottom: 10px;">
+        <button onclick="removeDuplicates()" style="padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px;">Remove Duplicates</button>
+        <button onclick="clearText()" style="padding: 10px 20px; background: #dc3545; color: white; border: none; cursor: pointer; border-radius: 4px;">Clear</button>
+    </div>
+    
+    <textarea id="outputText" rows="10" style="width: 100%; padding: 10px;" placeholder="Your clean text will appear here..." readonly></textarea>
 </div>
 
 <script>
 function removeDuplicates() {
     const input = document.getElementById('inputText').value;
-    const lines = input.split('\n');
+    const lines = input.split(/\r?\n/); // Handles all types of line breaks
     const uniqueLines = [...new Set(lines)];
     document.getElementById('outputText').value = uniqueLines.join('\n');
 }
