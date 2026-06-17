@@ -1,0 +1,343 @@
+<div class="tool-container">
+    <div class="tool-header">
+        <h2>Advanced Bulk Date Extractor</h2>
+        <p>Extract numerical and textual dates from unstructured document dumps, server logs, or mixed text configurations instantly.</p>
+    </div>
+
+    <div class="tool-grid">
+        <div class="panel card">
+            <div class="panel-header">
+                <span>Input Raw Text</span>
+                <span class="badge" id="inputCounter">0 Characters</span>
+            </div>
+            <textarea id="rawInput" placeholder="Paste your log streams, email transcripts, or unstructured markdown data blocks here containing dates (e.g., 2026-06-17, 12th March 2025, 05/24/2024)..."></textarea>
+            <div class="button-group">
+                <button id="btnExtract" class="btn btn-primary">⚡ Extract System Dates</button>
+                <button id="btnClear" class="btn id-secondary">Clear Input</button>
+            </div>
+        </div>
+
+        <div class="panel card">
+            <div class="panel-header">
+                <span>Extracted Temporal Data</span>
+                <span class="badge badge-success" id="outputCounter">0 Dates Found</span>
+            </div>
+            <textarea id="cleanOutput" readonly placeholder="Extracted chronological arrays will display here..."></textarea>
+            <div class="button-group">
+                <button id="btnCopy" class="btn btn-success">📋 Copy Extracted Dates</button>
+                <button id="btnDownload" class="btn btn-outline">📥 Download text</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="config-bar card">
+        <h3>Configuration Parameters</h3>
+        <div class="config-options">
+            <label class="checkbox-label">
+                <input type="checkbox" id="chkDeduplicate" checked> Wiping Out Duplicates
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="chkSort" checked> Chronological Array Sorting
+            </label>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --success-color: #10b981;
+    --success-hover: #059669;
+    --bg-surface: #ffffff;
+    --bg-app: #f8fafc;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --radius: 12px;
+}
+
+.tool-container {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-main);
+    padding: 24px;
+    border-radius: var(--radius);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.tool-header {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.tool-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.tool-header p {
+    color: var(--text-muted);
+    font-size: 16px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.badge {
+    background-color: #f1f5f9;
+    color: var(--text-muted);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.badge-success {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+textarea {
+    width: 100%;
+    height: 320px;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    resize: none;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    flex: 1;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.id-secondary {
+    background-color: #e2e8f0;
+    color: var(--text-main);
+}
+
+.id-secondary:hover {
+    background-color: #cbd5e1;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: var(--success-hover);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+}
+
+.btn-outline:hover {
+    background-color: #f1f5f9;
+}
+
+.config-bar {
+    margin-top: 24px;
+}
+
+.config-bar h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.config-options {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+@media(max-width: 768px) {
+    .tool-grid {
+        grid-template-columns: 1fr;
+    }
+    .button-group {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const rawInput = document.getElementById('rawInput');
+    const cleanOutput = document.getElementById('cleanOutput');
+    const inputCounter = document.getElementById('inputCounter');
+    const outputCounter = document.getElementById('outputCounter');
+    
+    const btnExtract = document.getElementById('btnExtract');
+    const btnClear = document.getElementById('btnClear');
+    const btnCopy = document.getElementById('btnCopy');
+    const btnDownload = document.getElementById('btnDownload');
+    
+    const chkDeduplicate = document.getElementById('chkDeduplicate');
+    const chkSort = document.getElementById('chkSort');
+
+    // Real-time tracking input counter
+    rawInput.addEventListener('input', () => {
+        inputCounter.textContent = `${rawInput.value.length} Characters`;
+    });
+
+    btnExtract.addEventListener('click', () => {
+        const text = rawInput.value;
+        if (!text.trim()) {
+            alert('Please populate the raw input space with structured text dumps.');
+            return;
+        }
+
+        // Comprehensive system tracking patterns for standard global dates
+        const isoPattern = /\b\d{4}[-/.]\d{1,2}[-/.]\d{1,2}\b/g;
+        const conventionalPattern = /\b\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}\b/g;
+        const structuralWordPattern = /\b(?:\d{1,2}(?:st|nd|rd|th)?\s+)?(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember))[,\s]+(?:\d{1,2}(?:st|nd|rd|th)?[\s,]+)?\d{2,4}\b/gi;
+
+        let results = [];
+        
+        const matchISO = text.match(isoPattern);
+        if (matchISO) results = results.concat(matchISO);
+
+        const matchConv = text.match(conventionalPattern);
+        if (matchConv) results = results.concat(matchConv);
+
+        const matchWord = text.match(structuralWordPattern);
+        if (matchWord) results = results.concat(matchWord);
+
+        if (results.length === 0) {
+            cleanOutput.value = "No system-compliant chronological dates found inside the current text string block.";
+            outputCounter.textContent = "0 Dates Found";
+            return;
+        }
+
+        // Configuration filters processing engine
+        if (chkDeduplicate.checked) {
+            results = [...new Set(results)];
+        }
+
+        if (chkSort.checked) {
+            results.sort((a, b) => {
+                const parsedA = Date.parse(a.replace(/(st|nd|rd|th)/g, ''));
+                const parsedB = Date.parse(b.replace(/(st|nd|rd|th)/g, ''));
+                if (!isNaN(parsedA) && !isNaN(parsedB)) {
+                    return parsedA - parsedB;
+                }
+                return a.localeCompare(b);
+            });
+        }
+
+        cleanOutput.value = results.join('\n');
+        outputCounter.textContent = `${results.length} Dates Found`;
+    });
+
+    btnClear.addEventListener('click', () => {
+        rawInput.value = '';
+        cleanOutput.value = '';
+        inputCounter.textContent = '0 Characters';
+        outputCounter.textContent = '0 Dates Found';
+    });
+
+    btnCopy.addEventListener('click', () => {
+        if (!cleanOutput.value || cleanOutput.value.startsWith("No system-compliant")) return;
+        navigator.clipboard.writeText(cleanOutput.value).then(() => {
+            const originalText = btnCopy.textContent;
+            btnCopy.textContent = 'Copied! ✓';
+            btnCopy.style.backgroundColor = '#047857';
+            setTimeout(() => {
+                btnCopy.textContent = originalText;
+                btnCopy.style.backgroundColor = var(--success-color);
+            }, 2000);
+        });
+    });
+
+    btnDownload.addEventListener('click', () => {
+        if (!cleanOutput.value || cleanOutput.value.startsWith("No system-compliant")) return;
+        const textBlob = new Blob([cleanOutput.value], { type: 'text/plain' });
+        const downloadLink = document.createElement('a');
+        downloadLink.download = 'extracted-dates-list.txt';
+        downloadLink.href = window.URL.createObjectURL(textBlob);
+        downloadLink.style.display = 'none';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    });
+});
+</script>
