@@ -1,0 +1,33 @@
+<div class="tool-container-custom">
+    <h2>📏 Sort by Line Length</h2>
+    <div class="control-grid-custom">
+        <select id="sortOrder" class="input-select-custom">
+            <option value="asc">Shortest to Longest</option>
+            <option value="desc">Longest to Shortest</option>
+        </select>
+    </div>
+    <textarea id="textInput" class="input-textarea-custom" placeholder="Paste your text here..."></textarea>
+    <div class="action-row-custom">
+        <button class="btn-custom btn-primary-custom" onclick="sortByLength()">Sort Lines</button>
+        <button class="btn-custom btn-reset-custom" onclick="clearAll()">Reset</button>
+    </div>
+    <textarea id="textOutput" class="input-textarea-custom" readonly style="display:none;"></textarea>
+</div>
+
+<script>
+    function sortByLength() {
+        const text = document.getElementById('textInput').value;
+        const order = document.getElementById('sortOrder').value;
+        let lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+        
+        lines.sort((a, b) => order === 'asc' ? a.length - b.length : b.length - a.length);
+        
+        const output = document.getElementById('textOutput');
+        output.value = lines.join('\n');
+        output.style.display = 'block';
+    }
+    function clearAll() {
+        document.getElementById('textInput').value = '';
+        document.getElementById('textOutput').style.display = 'none';
+    }
+</script>
