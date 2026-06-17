@@ -1,33 +1,80 @@
 <div class="tool-container-custom">
-    <h2>📏 Sort by Line Length</h2>
-    <div class="control-grid-custom">
-        <select id="sortOrder" class="input-select-custom">
-            <option value="asc">Shortest to Longest</option>
-            <option value="desc">Longest to Shortest</option>
-        </select>
+    <!-- Header -->
+    <div class="tool-header-custom">
+        <h2><span class="tool-icon-custom">📏</span> Sort by Line Length</h2>
+        <p>Advanced length-based string sorter for data analysis and log cleanup.</p>
     </div>
-    <textarea id="textInput" class="input-textarea-custom" placeholder="Paste your text here..."></textarea>
+
+    <!-- Controls -->
+    <div class="control-grid-custom">
+        <div class="control-item-custom">
+            <label>Sorting Logic</label>
+            <select id="sortOrder" class="input-select-custom">
+                <option value="asc">Shortest to Longest</option>
+                <option value="desc">Longest to Shortest</option>
+            </select>
+        </div>
+        <div class="control-item-custom">
+            <label>Auto-Remove</label>
+            <select id="removeEmpty" class="input-select-custom">
+                <option value="true">Remove Empty Lines</option>
+                <option value="false">Keep Empty Lines</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Input Area -->
+    <textarea id="textInput" class="input-textarea-custom" placeholder="Paste your lines here..."></textarea>
+
+    <!-- Actions -->
     <div class="action-row-custom">
-        <button class="btn-custom btn-primary-custom" onclick="sortByLength()">Sort Lines</button>
+        <button class="btn-custom btn-primary-custom" onclick="sortByLength()">Sort Now</button>
+        <button id="copyBtn" class="btn-custom btn-secondary-custom" onclick="copyOutput()" disabled>Copy Result</button>
         <button class="btn-custom btn-reset-custom" onclick="clearAll()">Reset</button>
     </div>
-    <textarea id="textOutput" class="input-textarea-custom" readonly style="display:none;"></textarea>
+
+    <!-- Output Area -->
+    <div id="outputSection" style="display:none;">
+        <label>Sorted Output <span id="lineCountBadge" class="badge-custom">0 lines</span></label>
+        <textarea id="textOutput" class="input-textarea-custom output-ready" readonly></textarea>
+    </div>
 </div>
 
 <script>
     function sortByLength() {
         const text = document.getElementById('textInput').value;
         const order = document.getElementById('sortOrder').value;
-        let lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+        const removeEmpty = document.getElementById('removeEmpty').value === 'true';
         
+        let lines = text.split(/\r?\n/);
+        
+        if (removeEmpty) {
+            lines = lines.filter(l => l.trim() !== '');
+        }
+
         lines.sort((a, b) => order === 'asc' ? a.length - b.length : b.length - a.length);
         
         const output = document.getElementById('textOutput');
         output.value = lines.join('\n');
         output.style.display = 'block';
+        
+        document.getElementById('outputSection').style.display = 'block';
+        document.getElementById('copyBtn').disabled = false;
+        document.getElementById('lineCountBadge').innerText = `${lines.length} lines processed`;
     }
+
+    function copyOutput() {
+        const output = document.getElementById('textOutput');
+        output.select();
+        document.execCommand('copy');
+        alert('Sorted text copied to clipboard!');
+    }
+
     function clearAll() {
         document.getElementById('textInput').value = '';
-        document.getElementById('textOutput').style.display = 'none';
+        document.getElementById('textOutput').value = '';
+        document.getElementById('outputSection').style.display = 'none';
+        document.getElementById('copyBtn').disabled = true;
+        document.getElementById('lineCountBadge').innerText = '0 lines';
     }
 </script>
