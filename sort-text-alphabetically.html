@@ -1,0 +1,281 @@
+<div class="tool-container-custom">
+    <div class="tool-header-custom">
+        <h2><span class="tool-icon-custom">🔠</span> Sort Text Alphabetically Online</h2>
+        <p>Instantly organize, arrange, and clean multi-line text strings, variables, or lists using standard client-side performance matrices.</p>
+    </div>
+
+    <div class="tool-workspace-custom">
+        <div class="control-grid-custom">
+            <div class="control-item-custom">
+                <label for="sortOrder">Sorting Matrix Sequence</label>
+                <select id="sortOrder" class="input-select-custom">
+                    <option value="asc">Alphabetical Order (A to Z)</option>
+                    <option value="desc">Reverse Order (Z to A)</option>
+                </select>
+            </div>
+            <div class="control-item-custom">
+                <label for="caseOption">Case Normalization Filter</label>
+                <select id="caseOption" class="input-select-custom">
+                    <option value="insensitive">Ignore Case Sensitivity (Recommended)</option>
+                    <option value="sensitive">Enforce Match Case</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-wrapper-custom">
+            <label for="textInput">Enter Unsorted Text Lines Below:</label>
+            <textarea id="textInput" placeholder="Paste your unsorted list lines here...&#10;Banana&#10;Apple&#10;Cherry" class="input-textarea-custom"></textarea>
+        </div>
+
+        <div class="action-row-custom">
+            <button id="processBtn" class="btn-custom btn-primary-custom" onclick="executeTextSort()">
+                <span>⚙️</span> Sort Text Block
+            </button>
+            <button id="copyBtn" class="btn-custom btn-secondary-custom" onclick="copySortedOutput()" disabled>
+                <span>📋</span> Copy Output Lines
+            </button>
+            <button class="btn-custom btn-reset-custom" onclick="clearWorkspaceFields()">
+                <span>🧹</span> Reset fields
+            </button>
+        </div>
+
+        <div class="output-wrapper-custom" id="outputContainer" style="display: none;">
+            <label for="textOutput">Sorted Algorithmic Output:</label>
+            <textarea id="textOutput" readonly class="input-textarea-custom output-textarea-ready"></textarea>
+            <div class="status-badge-custom" id="statusBadge">Engine Executed Successfully</div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tool-container-custom {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 24px;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        color: #1e293b;
+        max-width: 900px;
+        margin: 20px auto;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .tool-header-custom {
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 16px;
+        margin-bottom: 20px;
+    }
+    .tool-header-custom h2 {
+        font-size: 24px;
+        color: #0f172a;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        font-weight: 700;
+    }
+    .tool-icon-custom {
+        margin-right: 10px;
+    }
+    .tool-header-custom p {
+        font-size: 14px;
+        color: #64748b;
+        margin: 0;
+        line-height: 1.5;
+    }
+    .control-grid-custom {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    .control-item-custom label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 6px;
+    }
+    .input-select-custom {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        background-color: #f8fafc;
+        color: #1e293b;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .input-select-custom:focus {
+        border-color: #017e84;
+    }
+    .input-wrapper-custom, .output-wrapper-custom {
+        margin-bottom: 20px;
+    }
+    .input-wrapper-custom label, .output-wrapper-custom label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 8px;
+    }
+    .input-textarea-custom {
+        width: 100%;
+        height: 180px;
+        padding: 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 14px;
+        color: #0f172a;
+        resize: vertical;
+        outline: none;
+        box-sizing: border-box;
+        line-height: 1.6;
+    }
+    .input-textarea-custom:focus {
+        border-color: #017e84;
+        box-shadow: 0 0 0 3px rgba(1, 126, 132, 0.1);
+    }
+    .output-textarea-ready {
+        background-color: #f8fafc;
+        border-color: #017e84;
+    }
+    .action-row-custom {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .btn-custom {
+        padding: 11px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-primary-custom {
+        background-color: #017e84;
+        color: #ffffff;
+    }
+    .btn-primary-custom:hover {
+        background-color: #016569;
+    }
+    .btn-secondary-custom {
+        background-color: #e2e8f0;
+        color: #334155;
+    }
+    .btn-secondary-custom:hover:not(:disabled) {
+        background-color: #cbd5e1;
+    }
+    .btn-secondary-custom:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    .btn-reset-custom {
+        background-color: #f1f5f9;
+        color: #64748b;
+        margin-left: auto;
+    }
+    .btn-reset-custom:hover {
+        background-color: #e2e8f0;
+        color: #334155;
+    }
+    .status-badge-custom {
+        display: inline-block;
+        margin-top: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #15803d;
+        background-color: #dcfce7;
+        padding: 4px 10px;
+        border-radius: 4px;
+    }
+    @media (max-width: 600px) {
+        .control-grid-custom {
+            grid-template-columns: 1fr;
+        }
+        .btn-reset-custom {
+            margin-left: 0;
+            width: 100%;
+        }
+        .btn-custom {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    function executeTextSort() {
+        const textInput = document.getElementById('textInput').value;
+        const sortOrder = document.getElementById('sortOrder').value;
+        const caseOption = document.getElementById('caseOption').value;
+        
+        if (!textInput.trim()) {
+            alert('Please provide dynamic text block values to sort.');
+            return;
+        }
+
+        // Split data arrays into clean lines
+        let rawLines = textInput.split(/\r?\n/);
+        
+        // Remove structural empty lines while preserving user tracking alignment
+        let processedLines = rawLines.filter(line => line.trim() !== '');
+
+        // Algorithm Sort Logic Implementation
+        processedLines.sort((stringA, stringB) => {
+            if (caseOption === 'insensitive') {
+                return sortOrder === 'asc' 
+                    ? stringA.localeCompare(stringB, undefined, { sensitivity: 'base' }) 
+                    : stringB.localeCompare(stringA, undefined, { sensitivity: 'base' });
+            } else {
+                if (stringA < stringB) return sortOrder === 'asc' ? -1 : 1;
+                if (stringA > stringB) return sortOrder === 'asc' ? 1 : -1;
+                return 0;
+            }
+        });
+
+        // Populate system structural logs to output interface
+        const textOutput = document.getElementById('textOutput');
+        textOutput.value = processedLines.join('\n');
+        
+        document.getElementById('outputContainer').style.display = 'block';
+        document.getElementById('copyBtn').disabled = false;
+        
+        // Update user feedback triggers
+        const badge = document.getElementById('statusBadge');
+        badge.innerText = `Engine Sorted ${processedLines.length} Lines Successfully.`;
+        badge.style.backgroundColor = '#dcfce7';
+        badge.style.color = '#15803d';
+    }
+
+    function copySortedOutput() {
+        const outputField = document.getElementById('textOutput');
+        if (!outputField.value) return;
+
+        outputField.select();
+        outputField.setSelectionRange(0, 99999); // Responsive mobile device safety toggle
+
+        try {
+            navigator.clipboard.writeText(outputField.value);
+            const badge = document.getElementById('statusBadge');
+            badge.innerText = "Output Copied to Clipboard Array!";
+            badge.style.backgroundColor = '#dbeafe';
+            badge.style.color = '#1e40af';
+        } catch (err) {
+            alert('Failed to execute automatic programmatic clipboard write.');
+        }
+    }
+
+    function clearWorkspaceFields() {
+        document.getElementById('textInput').value = '';
+        document.getElementById('textOutput').value = '';
+        document.getElementById('outputContainer').style.display = 'none';
+        document.getElementById('copyBtn').disabled = true;
+    }
+</script>
