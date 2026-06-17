@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Counter Online</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .tool-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4 antialiased">
+
+    <div class="w-full max-w-4xl tool-card p-6 md:p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">📊 Line Counter Online</h1>
+            <p class="text-sm md:text-base text-gray-500">Analyze structural text blocks, identify break sequences, and monitor total row metrics instantly.</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 text-center">
+                <span class="block text-2xl md:text-3xl font-bold text-indigo-700" id="totalLines">0</span>
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Lines</span>
+            </div>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-4 text-center">
+                <span class="block text-2xl md:text-3xl font-bold text-emerald-700" id="filledLines">0</span>
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filled Lines</span>
+            </div>
+            <div class="bg-rose-50/50 border border-rose-100 rounded-xl p-4 text-center">
+                <span class="block text-2xl md:text-3xl font-bold text-rose-700" id="emptyLines">0</span>
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Empty Lines</span>
+            </div>
+            <div class="bg-amber-50/50 border border-amber-100 rounded-xl p-4 text-center">
+                <span class="block text-2xl md:text-3xl font-bold text-amber-700" id="avgChars">0</span>
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Avg Chars / Line</span>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-semibold text-gray-700">Paste Data Rows, Code Scripts, or Text Blocks:</label>
+            <textarea id="inputText" class="w-full h-64 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition text-gray-700 font-mono text-sm" placeholder="Paste your comma-separated arrays, code scripts, or structural data segments here to run line metrics diagnostics..."></textarea>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-4">
+            <button id="copyBtn" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-md shadow-indigo-100 transition transform active:scale-95 cursor-pointer text-sm">
+                📋 Copy Content
+            </button>
+            <button id="clearBtn" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium rounded-xl transition transform active:scale-95 cursor-pointer text-sm">
+                🗑️ Clear Field
+            </button>
+        </div>
+
+        <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg opacity-0 transition-opacity duration-300 pointer-events-none shadow-lg">
+            Content copied to clipboard!
+        </div>
+    </div>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const totalLines = document.getElementById('totalLines');
+        const filledLines = document.getElementById('filledLines');
+        const emptyLines = document.getElementById('emptyLines');
+        const avgChars = document.getElementById('avgChars');
+
+        const copyBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const toast = document.getElementById('toast');
+
+        function executeLineAudit() {
+            const text = inputText.value;
+            
+            if (text === '') {
+                totalLines.textContent = '0';
+                filledLines.textContent = '0';
+                emptyLines.textContent = '0';
+                avgChars.textContent = '0';
+                return;
+            }
+
+            // Universal line splitter supporting standard break systems (\r\n, \n, \r)
+            const lines = text.split(/\r\n|\r|\n/);
+            const countTotal = lines.length;
+            
+            let countFilled = 0;
+            let countEmpty = 0;
+            let totalCharsCombined = 0;
+
+            lines.forEach(line => {
+                totalCharsCombined += line.length;
+                if (line.trim() === '') {
+                    countEmpty++;
+                } else {
+                    countFilled++;
+                }
+            });
+
+            const averageLength = countTotal > 0 ? Math.round(totalCharsCombined / countTotal) : 0;
+
+            // Render calculations to dashboard metrics
+            totalLines.textContent = countTotal;
+            filledLines.textContent = countFilled;
+            emptyLines.textContent = countEmpty;
+            avgChars.textContent = averageLength;
+        }
+
+        // Event Listeners
+        inputText.addEventListener('input', executeLineAudit);
+
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            executeLineAudit();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (!inputText.value.trim()) return;
+            navigator.clipboard.writeText(inputText.value).then(() => {
+                toast.classList.remove('opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
