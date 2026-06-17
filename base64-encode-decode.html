@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 Encode & Decode</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .tool-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4 antialiased">
+
+    <div class="w-full max-w-4xl tool-card p-6 md:p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">🔐 Base64 Encode & Decode</h1>
+            <p class="text-sm md:text-base text-gray-500">Instantly convert raw text strings to Base64 format, or safely parse encoded data blocks back into human-readable text.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-semibold text-gray-700 flex justify-between items-center">
+                    <span>Source Input Text / Base64 Data:</span>
+                    <span id="inputCounter" class="text-xs text-gray-400 font-normal">0 chars</span>
+                </label>
+                <textarea id="inputText" class="w-full h-64 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition text-gray-700 font-mono text-sm" placeholder="Paste your plain text here to encode, OR paste a Base64 string here to decode..."></textarea>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-semibold text-gray-700 flex justify-between items-center">
+                    <span>Processed Output Results:</span>
+                    <span id="outputCounter" class="text-xs text-gray-400 font-normal">0 chars</span>
+                </label>
+                <textarea id="outputText" class="w-full h-64 p-4 border border-gray-200 rounded-xl bg-gray-50 outline-none resize-none text-indigo-900 font-mono text-sm tracking-tight" readonly placeholder="Output string will appear here after selection..."></textarea>
+            </div>
+
+        </div>
+
+        <div id="errorPanel" class="mt-4 p-3 bg-red-50 text-red-600 rounded-xl text-xs font-medium border border-red-100 hidden">
+            ⚠️ Invalid Input Profile: The provided string is not properly structured as a valid Base64 architecture data block.
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
+            <button id="encodeBtn" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-md shadow-indigo-100 transition transform active:scale-95 cursor-pointer flex items-center gap-2">
+                🔒 Encode to Base64
+            </button>
+            <button id="decodeBtn" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl shadow-md shadow-emerald-100 transition transform active:scale-95 cursor-pointer flex items-center gap-2">
+                🔓 Decode Base64
+            </button>
+            <button id="copyBtn" class="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition transform active:scale-95 cursor-pointer">
+                📋 Copy Result
+            </button>
+            <button id="clearBtn" class="px-5 py-3 bg-gray-50 hover:bg-gray-100 text-gray-500 font-medium rounded-xl transition transform active:scale-95 cursor-pointer border border-gray-200">
+                🗑️ Clear
+            </button>
+        </div>
+
+        <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg opacity-0 transition-opacity duration-300 pointer-events-none shadow-lg">
+            Copied successfully to clipboard!
+        </div>
+    </div>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const inputCounter = document.getElementById('inputCounter');
+        const outputCounter = document.getElementById('outputCounter');
+        const errorPanel = document.getElementById('errorPanel');
+        
+        const encodeBtn = document.getElementById('encodeBtn');
+        const decodeBtn = document.getElementById('decodeBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const toast = document.getElementById('toast');
+
+        // Character counter mechanics
+        function updateCounters() {
+            inputCounter.textContent = `${inputText.value.length} chars`;
+            outputCounter.textContent = `${outputText.value.length} chars`;
+        }
+
+        inputText.addEventListener('input', updateCounters);
+
+        // UTF-8 Safe Encoding (Prevents standard btoa crash on special symbols)
+        function utf8ToBase64(str) {
+            return window.btoa(unescape(encodeURIComponent(str)));
+        }
+
+        // UTF-8 Safe Decoding
+        function base64ToUtf8(str) {
+            return decodeURIComponent(escape(window.atob(str)));
+        }
+
+        // Action Execution Routines
+        encodeBtn.addEventListener('click', () => {
+            errorPanel.classList.add('hidden');
+            const data = inputText.value;
+            if (!data) return;
+            
+            const encoded = utf8ToBase64(data);
+            outputText.value = encoded;
+            updateCounters();
+        });
+
+        decodeBtn.addEventListener('click', () => {
+            errorPanel.classList.add('hidden');
+            const data = inputText.value.trim().replace(/\s/g, ''); // Strip whitespaces
+            if (!data) return;
+
+            try {
+                const decoded = base64ToUtf8(data);
+                outputText.value = decoded;
+                updateCounters();
+            } catch (e) {
+                errorPanel.classList.remove('hidden');
+                outputText.value = '';
+                updateCounters();
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            outputText.value = '';
+            errorPanel.classList.add('hidden');
+            updateCounters();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (!outputText.value) return;
+            navigator.clipboard.writeText(outputText.value).then(() => {
+                toast.classList.remove('opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
