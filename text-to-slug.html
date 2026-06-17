@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Slug Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .tool-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4 antialiased">
+
+    <div class="w-full max-w-4xl tool-card p-6 md:p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">🔗 Text to Slug Generator</h1>
+            <p class="text-sm md:text-base text-gray-500">Transform raw headlines and page titles into pristine, SEO-optimized URL strings instantly.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label class="text-sm font-semibold text-gray-700 block mb-2">Enter Page Title / String Input:</label>
+                    <textarea id="inputText" class="w-full h-32 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition text-gray-700" placeholder="Type your post title here (e.g., Best Tools to Fix Daily Time Management Problems!)..."></textarea>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 flex flex-col gap-3">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Slug Configurations</span>
+                    
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="stripStopWords" checked class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <span class="text-sm text-gray-600 font-medium">Remove SEO Stop Words <span class="text-xs text-gray-400">(the, a, and, of, to, in, for)</span></span>
+                    </label>
+
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="useUnderscore" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <span class="text-sm text-gray-600 font-medium">Use Underscore (<code class="bg-gray-200 px-1 rounded">_</code>) instead of Hyphen (<code class="bg-gray-200 px-1 rounded">-</code>)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex flex-col justify-between">
+                <div>
+                    <label class="text-sm font-semibold text-gray-700 block mb-2">Generated SEO URL Slug:</label>
+                    <textarea id="outputSlug" class="w-full h-32 p-4 border border-gray-200 rounded-xl bg-gray-50 outline-none resize-none text-indigo-700 font-mono font-medium text-lg tracking-tight" readonly placeholder="generated-seo-url-slug-appears-here"></textarea>
+                </div>
+
+                <div class="mt-4 p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 text-xs text-indigo-600 flex items-center gap-2 overflow-hidden whitespace-nowrap text-ellipsis">
+                    <span class="font-bold">Live URL Preview:</span> 
+                    <span id="urlPreview" class="text-gray-500">https://everyday.odoo.com/your-slug</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
+            <button id="copyBtn" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-md shadow-indigo-100 transition transform active:scale-95 cursor-pointer flex items-center gap-2">
+                📋 Copy Optimized Slug
+            </button>
+            <button id="clearBtn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium rounded-xl transition transform active:scale-95 cursor-pointer">
+                🗑️ Reset Form
+            </button>
+        </div>
+
+        <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg opacity-0 transition-opacity duration-300 pointer-events-none shadow-lg">
+            Slug copied to clipboard!
+        </div>
+    </div>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const outputSlug = document.getElementById('outputSlug');
+        const stripStopWords = document.getElementById('stripStopWords');
+        const useUnderscore = document.getElementById('useUnderscore');
+        const copyBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const urlPreview = document.getElementById('urlPreview');
+        const toast = document.getElementById('toast');
+
+        // Standard SEO stop words configuration array
+        const stopWords = ['a', 'an', 'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'is', 'am', 'are', 'was', 'were', 'to', 'from', 'as'];
+
+        function generateSlug() {
+            let text = inputText.value.trim();
+            if (!text) {
+                outputSlug.value = '';
+                urlPreview.textContent = 'https://everyday.odoo.com/your-slug';
+                return;
+            }
+
+            // Convert to lowercase and sanitize basic encoding entities
+            text = text.toLowerCase();
+
+            // Split into clean array tokens by stripping symbols
+            let cleanTokens = text.replace(/[^a-z0-9\s-]/g, '').split(/[\s-]+/);
+
+            // Conditional stop word purging process
+            if (stripStopWords.checked) {
+                cleanTokens = cleanTokens.filter(token => !stopWords.includes(token));
+            }
+
+            // Join using configuration requested separator symbol
+            const separator = useUnderscore.checked ? '_' : '-';
+            let slug = cleanTokens.filter(Boolean).join(separator);
+
+            outputSlug.value = slug;
+            urlPreview.textContent = `https://everyday.odoo.com/${slug}`;
+        }
+
+        // Live input data stream processing matrix
+        inputText.addEventListener('input', generateSlug);
+        stripStopWords.addEventListener('change', generateSlug);
+        useUnderscore.addEventListener('change', generateSlug);
+
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            outputSlug.value = '';
+            generateSlug();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (outputSlug.value.trim() === '') return;
+            navigator.clipboard.writeText(outputSlug.value).then(() => {
+                toast.classList.remove('opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
