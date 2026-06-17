@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flip Text Online</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .tool-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4 antialiased">
+
+    <div class="w-full max-w-4xl tool-card p-6 md:p-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">🙃 Flip Text Online</h1>
+            <p class="text-sm md:text-base text-gray-500">Instantly convert your text into upside down and backward mirrored formats.</p>
+        </div>
+
+        <!-- Layout Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Input Side -->
+            <div class="flex flex-col">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-sm font-semibold text-gray-700">Enter Your Normal Text:</label>
+                    <span id="inputCount" class="text-xs text-gray-400">0 Chars | 0 Words</span>
+                </div>
+                <textarea id="inputText" class="w-full h-48 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition text-gray-700" placeholder="Type or paste your text here to flip it upside down..."></textarea>
+            </div>
+
+            <!-- Output Side -->
+            <div class="flex flex-col">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-sm font-semibold text-gray-700">Upside Down Output:</label>
+                    <span id="outputCount" class="text-xs text-gray-400">0 Chars</span>
+                </div>
+                <textarea id="outputText" class="w-full h-48 p-4 border border-gray-200 rounded-xl bg-gray-50 outline-none resize-none text-gray-700 font-mono" readonly placeholder="ʎɥʇ ʇǝxʇ ʍıןן ɐddǝɐɹ ɥǝɹǝ dʍsn-doʍu..."></textarea>
+            </div>
+
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
+            <button id="flipBtn" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-md shadow-indigo-100 transition transform active:scale-95 cursor-pointer">
+                🙃 Flip Text Upside Down
+            </button>
+            <button id="copyBtn" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl shadow-md shadow-emerald-100 transition transform active:scale-95 cursor-pointer flex items-center gap-2">
+                📋 Copy Flipped Text
+            </button>
+            <button id="clearBtn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium rounded-xl transition transform active:scale-95 cursor-pointer">
+                🗑️ Clear All
+            </button>
+        </div>
+
+        <!-- Notification -->
+        <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg opacity-0 transition-opacity duration-300 pointer-events-none shadow-lg">
+            Copied to clipboard!
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const flipBtn = document.getElementById('flipBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const inputCount = document.getElementById('inputCount');
+        const outputCount = document.getElementById('outputCount');
+        const toast = document.getElementById('toast');
+
+        // Upside Down Unicode Character Mapping Matrix
+        const flipMatrix = {
+            'a': 'ɐ', 'b': 'q', 'c': 'ɔ', 'd': 'p', 'e': 'ǝ', 'f': 'ɟ', 'g': 'ƃ', 'h': 'ɥ', 'i': 'ı', 'j': 'ɾ', 'k': 'ʞ', 'l': 'ן', 'm': 'ɯ', 'n': 'u', 'o': 'o', 'p': 'd', 'q': 'b', 'r': 'ɹ', 's': 's', 't': 'ʇ', 'u': 'n', 'v': 'ʌ', 'w': 'ʍ', 'x': 'x', 'y': 'ʎ', 'z': 'z',
+            'A': '∀', 'B': 'ᗺ', 'C': 'Ɔ', 'D': '◖', 'E': 'Ǝ', 'F': 'Ⅎ', 'G': '⅁', 'H': 'H', 'I': 'I', 'J': 'Ր', 'K': 'ʞ', 'L': '˥', 'M': 'W', 'N': 'N', 'O': 'O', 'P': 'Ԁ', 'Q': 'Ό', 'R': 'ᴚ', 'S': 'S', 'T': '┴', 'U': '∩', 'V': 'Ʌ', 'W': 'M', 'X': 'X', 'Y': '⅄', 'Z': 'Z',
+            '1': 'Ɩ', '2': 'ᄅ', '3': 'Ɛ', '4': 'ㄣ', '5': 'ϛ', '6': '9', '7': 'ㄥ', '8': '8', '9': '6', '0': '0',
+            '.': '˙', ',': "'", "'": ',', '"': '„', '\\': '/', '/': '\\', '?': '¿', '!': '¡', '(': ')', ')': '(', '[': ']', ']': '[', '{': '}', '}': '{', '<': '>', '>': '<', '&': '⅋', '_': '‾'
+        };
+
+        // Main Conversion Handler
+        function executeTextFlip() {
+            const str = inputText.value;
+            if (!str) {
+                outputText.value = '';
+                outputCount.textContent = '0 Chars';
+                return;
+            }
+
+            // Flip characters and reverse sequence for authentic upside down reading flow
+            const flippedStr = Array.from(str)
+                .map(char => flipMatrix[char] || char)
+                .reverse()
+                .join('');
+
+            outputText.value = flippedStr;
+            outputCount.textContent = `${flippedStr.length} Chars`;
+        }
+
+        // Live Performance Counting
+        function updateCounters() {
+            const text = inputText.value;
+            const charCount = text.length;
+            const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            inputCount.textContent = `${charCount} Chars | ${wordCount} Words`;
+            
+            executeTextFlip();
+        }
+
+        // Event Setup
+        inputText.addEventListener('input', updateCounters);
+        flipBtn.addEventListener('click', executeTextFlip);
+
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            outputText.value = '';
+            updateCounters();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (outputText.value.trim() === '') return;
+            navigator.clipboard.writeText(outputText.value).then(() => {
+                toast.classList.remove('opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
