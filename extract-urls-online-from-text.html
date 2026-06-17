@@ -1,0 +1,106 @@
+<div class="tool-container" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 900px; margin: 0 auto; padding: 25px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+    
+    <!-- Real-time Metrics Tracker Grid -->
+    <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        <div class="metric-card" style="background: #f8f9fa; border-left: 4px solid #4f46e5; padding: 15px; border-radius: 6px;">
+            <span style="display: block; font-size: 13px; color: #6c757d; font-weight: 600; text-transform: uppercase;">Total Links Found</span>
+            <span id="linkCount" style="font-size: 24px; font-weight: 700; color: #212529;">0</span>
+        </div>
+        <div class="metric-card" style="background: #f8f9fa; border-left: 4px solid #06b6d4; padding: 15px; border-radius: 6px;">
+            <span style="display: block; font-size: 13px; color: #6c757d; font-weight: 600; text-transform: uppercase;">Unique Root Domains</span>
+            <span id="domainCount" style="font-size: 24px; font-weight: 700; color: #212529;">0</span>
+        </div>
+    </div>
+
+    <!-- Extraction Config Filters -->
+    <div class="config-bar" style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 20px; flex-wrap: wrap;">
+        <label style="font-weight: 600; font-size: 14px; color: #334155; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="radio" name="extractMode" value="full" checked style="accent-color: #4f46e5; width: 16px; height: 16px;"> Extract Full URLs
+        </label>
+        <label style="font-weight: 600; font-size: 14px; color: #334155; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="radio" name="extractMode" value="domain" style="accent-color: #4f46e5; width: 16px; height: 16px;"> Extract Root Domains Only
+        </label>
+    </div>
+
+    <!-- Raw Data Input Workspace -->
+    <div class="input-group" style="margin-bottom: 20px;">
+        <label for="rawInput" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Paste Raw Unstructured Text or HTML Code:</label>
+        <textarea id="rawInput" placeholder="Drop your raw data text strings, server logs, web scraping text blocks, or config dumps here..." style="width: 100%; height: 220px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; font-family: monospace; font-size: 14px; resize: vertical; box-sizing: border-box; transition: border-color 0.2s;" oninput="this.style.borderColor='#4f46e5'"></textarea>
+    </div>
+
+    <!-- Action Execution Dashboard -->
+    <div class="control-actions" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px;">
+        <button onclick="executeUrlExtraction()" style="flex: 1; min-width: 160px; background: #4f46e5; color: white; border: none; padding: 12px 20px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#3730a3'" onmouseout="this.style.background='#4f46e5'">Extract URLs</button>
+        <button onclick="copyExtractedData()" style="background: #22c55e; color: white; border: none; padding: 12px 20px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#16a34a'" onmouseout="this.style.background='#22c55e'">Copy Link List</button>
+        <button onclick="resetParserWorkspace()" style="background: #ef4444; color: white; border: none; padding: 12px 20px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">Clear Workspace</button>
+    </div>
+
+    <!-- Extracted Output Panel -->
+    <div class="output-group">
+        <label for="cleanOutput" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Extracted Web Links (Sanitized Target Index):</label>
+        <textarea id="cleanOutput" readonly placeholder="Your clean web destination addresses will instantly render line-by-line here..." style="width: 100%; height: 200px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; font-family: monospace; font-size: 14px; background-color: #f8f9fa; resize: vertical; box-sizing: border-box;"></textarea>
+    </div>
+</div>
+
+<script>
+function executeUrlExtraction() {
+    const rawData = document.getElementById('rawInput').value;
+    const outputField = document.getElementById('cleanOutput');
+    const mode = document.querySelector('input[name="extractMode"]:checked').value;
+    
+    // Comprehensive High-Precision URL Detection Pattern
+    const urlRegex = /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
+    
+    const matches = rawData.match(urlRegex);
+    
+    if (!matches) {
+        outputField.value = "No valid web addresses or hyperlink strings identified within the source text.";
+        document.getElementById('linkCount').innerText = "0";
+        document.getElementById('domainCount').innerText = "0";
+        return;
+    }
+    
+    let processedLinks = [];
+    
+    if (mode === 'domain') {
+        // Extract only root domains using regex boundaries
+        processedLinks = matches.map(url => {
+            try {
+                const domainMatch = url.match(/^https?:\/\/(?:www\.)?([^\/?#]+)/i);
+                return domainMatch ? domainMatch[0] : null;
+            } catch(e) { return null; }
+        }).filter(Boolean);
+    } else {
+        processedLinks = matches;
+    }
+    
+    // Drop duplicates instantly using a Set structure
+    const uniqueLinks = [...new Set(processedLinks)];
+    
+    outputField.value = uniqueLinks.join('\n');
+    document.getElementById('linkCount').innerText = uniqueLinks.length;
+    
+    // Calculate Unique Root Domains Metrics
+    const rootDomains = uniqueLinks.map(url => {
+        const matches = url.match(/^https?:\/\/(?:www\.)?([^\/?#]+)/i);
+        return matches ? matches[1] : null;
+    }).filter(Boolean);
+    
+    document.getElementById('domainCount').innerText = [...new Set(rootDomains)].length;
+}
+
+function copyExtractedData() {
+    const outputField = document.getElementById('cleanOutput');
+    if (outputField.value && !outputField.value.startsWith("No valid") && !outputField.value.startsWith("Your clean")) {
+        outputField.select();
+        document.execCommand('copy');
+    }
+}
+
+function resetParserWorkspace() {
+    document.getElementById('rawInput').value = '';
+    document.getElementById('cleanOutput').value = '';
+    document.getElementById('linkCount').innerText = '0';
+    document.getElementById('domainCount').innerText = '0';
+}
+</script>
