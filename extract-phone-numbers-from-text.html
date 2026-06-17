@@ -1,0 +1,83 @@
+<div class="tool-container" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 900px; margin: 0 auto; padding: 25px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+    
+    <!-- Real-time Metrics Tracker Grid -->
+    <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        <div class="metric-card" style="background: #f8f9fa; border-left: 4px solid #4f46e5; padding: 15px; border-radius: 6px;">
+            <span style="display: block; font-size: 13px; color: #6c757d; font-weight: 600; text-transform: uppercase;">Total Digits Captured</span>
+            <span id="phoneCount" style="font-size: 24px; font-weight: 700; color: #212529;">0</span>
+        </div>
+        <div class="metric-card" style="background: #f8f9fa; border-left: 4px solid #10b981; padding: 15px; border-radius: 6px;">
+            <span style="display: block; font-size: 13px; color: #6c757d; font-weight: 600; text-transform: uppercase;">Unique Contacts</span>
+            <span id="uniqueCount" style="font-size: 24px; font-weight: 700; color: #212529;">0</span>
+        </div>
+    </div>
+
+    <!-- Raw Data Input Workspace -->
+    <div class="input-group" style="margin-bottom: 20px;">
+        <label for="rawInput" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Paste Raw Unstructured Text, Logs, or Leads Database:</label>
+        <textarea id="rawInput" placeholder="Drop your unorganized contact lists, raw text sequences, communication logs, or business directory dumps here..." style="width: 100%; height: 220px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; font-family: monospace; font-size: 14px; resize: vertical; box-sizing: border-box; transition: border-color 0.2s;" oninput="this.style.borderColor='#4f46e5'"></textarea>
+    </div>
+
+    <!-- Action Execution Dashboard -->
+    <div class="control-actions" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px;">
+        <button onclick="executePhoneExtraction()" style="flex: 1; min-width: 160px; background: #4f46e5; color: white; border: none; padding: 12px 20px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#3730a3'" onmouseout="this.style.background='#4f46e5'">Extract Phone Numbers</button>
+        <button onclick="copyExtractedData()" style="background: #10b981; color: white; border: none; padding: 12px 20px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">Copy Contacts List</button>
+        <button onclick="resetParserWorkspace()" style="background: #ef4444; color: white; border: none; padding: 12px 20px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">Clear Workspace</button>
+    </div>
+
+    <!-- Extracted Output Panel -->
+    <div class="output-group">
+        <label for="cleanOutput" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Extracted Numerical Numbers (Sanitized Outputs):</label>
+        <textarea id="cleanOutput" readonly placeholder="Clean sorted contact numbers will compile line-by-line here instantly..." style="width: 100%; height: 200px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; font-family: monospace; font-size: 14px; background-color: #f8f9fa; resize: vertical; box-sizing: border-box;"></textarea>
+    </div>
+</div>
+
+<script>
+function executePhoneExtraction() {
+    const rawData = document.getElementById('rawInput').value;
+    const outputField = document.getElementById('cleanOutput');
+    
+    // Comprehensive Telephony Engine Regex for International Formats
+    // Matches formats: +1-234-567-8901, (123) 456-7890, 123.456.7890, +44 7123 456789, etc.
+    const phoneRegex = /(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b|\+?\d{9,15}\b/g;
+    
+    const matches = rawData.match(phoneRegex);
+    
+    if (!matches) {
+        outputField.value = "No valid phone numbers or target telephony sequences identified within the provided source block.";
+        document.getElementById('phoneCount').innerText = "0";
+        document.getElementById('uniqueCount').innerText = "0";
+        return;
+    }
+    
+    // Clean trailing or leading punctuation clutter from numbers
+    const cleanedMatches = matches.map(num => num.trim().replace(/[.,]$/, '')).filter(num => num.length >= 7);
+    
+    if (cleanedMatches.length === 0) {
+        outputField.value = "No valid operational data matches structured.";
+        return;
+    }
+
+    // Isolate unique values using tracking array constraints
+    const uniquePhones = [...new Set(cleanedMatches)];
+    
+    outputField.value = uniquePhones.join('\n');
+    document.getElementById('phoneCount').innerText = cleanedMatches.length;
+    document.getElementById('uniqueCount').innerText = uniquePhones.length;
+}
+
+function copyExtractedData() {
+    const outputField = document.getElementById('cleanOutput');
+    if (outputField.value && !outputField.value.startsWith("No valid") && !outputField.value.startsWith("Clean sorted")) {
+        outputField.select();
+        document.execCommand('copy');
+    }
+}
+
+function resetParserWorkspace() {
+    document.getElementById('rawInput').value = '';
+    document.getElementById('cleanOutput').value = '';
+    document.getElementById('phoneCount').innerText = '0';
+    document.getElementById('uniqueCount').innerText = '0';
+}
+</script>
