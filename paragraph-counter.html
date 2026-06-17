@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Paragraph Counter</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent-success: #10b981;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .tool-container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .tool-header h1 {
+            font-size: 24px;
+            color: var(--text-main);
+            margin: 0 0 8px 0;
+        }
+
+        .tool-header p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Counter Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-box {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .stat-box.highlight {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .stat-box.highlight .stat-value {
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Textarea Wrapper */
+        .textarea-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 220px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: vertical;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* Button Controls */
+        .control-btns {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+
+        .btn-danger {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background-color: #fca5a5;
+        }
+
+        /* Toast Alert */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--text-main);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="tool-container">
+    <div class="tool-header">
+        <h1>📊 Free Online Paragraph Counter</h1>
+        <p>Analyze your text metrics instantly. Count paragraphs, sentences, words, and characters accurately.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box highlight">
+            <div class="stat-value" id="paraCount">0</div>
+            <div class="stat-label">Paragraphs</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="sentenceCount">0</div>
+            <div class="stat-label">Sentences</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="wordCount">0</div>
+            <div class="stat-label">Words</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="charCount">0</div>
+            <div class="stat-label">Characters</div>
+        </div>
+    </div>
+
+    <div class="textarea-wrapper">
+        <textarea id="textInput" placeholder="Paste your text content or draft your article here..." oninput="processText()"></textarea>
+    </div>
+
+    <div class="control-btns">
+        <button class="btn btn-secondary" onclick="pasteText()">📋 Paste</button>
+        <button class="btn btn-primary" onclick="copyText()">✂️ Copy Text</button>
+        <button class="btn btn-danger" onclick="clearText()">🧹 Clear</button>
+    </div>
+</div>
+
+<div class="toast" id="toastAlert">Copied to clipboard!</div>
+
+<script>
+    function processText() {
+        const text = document.getElementById('textInput').value;
+
+        // 1. Character Count
+        const charCount = text.length;
+
+        // 2. Word Count
+        const cleanText = text.trim();
+        const wordCount = cleanText === '' ? 0 : cleanText.split(/\s+/).length;
+
+        // 3. Sentence Count
+        // Splits on periods, exclamation marks, and question marks followed by spaces or end of line
+        const sentenceCount = cleanText === '' ? 0 : (text.split(/[.!?]+/).filter(s => s.trim().length > 0).length);
+
+        // 4. Paragraph Count
+        // Splits by single or multiple line breaks
+        const paragraphs = text.split(/\n+/);
+        let paraCount = 0;
+        for (let i = 0; i < paragraphs.length; i++) {
+            if (paragraphs[i].trim() !== '') {
+                paraCount++;
+            }
+        }
+
+        // Update DOM elements
+        document.getElementById('charCount').innerText = charCount;
+        document.getElementById('wordCount').innerText = wordCount;
+        document.getElementById('sentenceCount').innerText = sentenceCount;
+        document.getElementById('paraCount').innerText = paraCount;
+    }
+
+    function clearText() {
+        document.getElementById('textInput').value = '';
+        processText();
+    </div>
+
+    async function pasteText() {
+        try {
+            const clipboardText = await navigator.clipboard.readText();
+            document.getElementById('textInput').value = clipboardText;
+            processText();
+        } catch (err) {
+            alert('Please allow clipboard permissions to paste text.');
+        }
+    }
+
+    function copyText() {
+        const text = document.getElementById('textInput').value;
+        if (!text) return;
+        
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.getElementById('toastAlert');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2000);
+        });
+    }
+</script>
+
+</body>
+</html>
