@@ -1,0 +1,62 @@
+<div class="tool-card-custom">
+    <h2>🔍 Find and Replace</h2>
+    
+    <textarea id="textInput" class="input-textarea-custom" placeholder="Paste your text here..."></textarea>
+    
+    <div class="controls-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+        <input type="text" id="findText" class="input-field" placeholder="Find what...">
+        <input type="text" id="replaceText" class="input-field" placeholder="Replace with...">
+    </div>
+
+    <div class="action-row-custom">
+        <button class="btn-custom btn-primary-custom" onclick="findAndReplace()">Replace Now</button>
+        <button class="btn-custom btn-reset-custom" onclick="clearAll()">Reset</button>
+    </div>
+
+    <div class="stats-grid-custom">
+        <div class="stat-box">
+            <span class="stat-value" id="replaceCount">0</span>
+            <span class="stat-label">REPLACEMENTS</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-value" id="statusBadge">READY</span>
+            <span class="stat-label">STATUS</span>
+        </div>
+    </div>
+
+    <textarea id="textOutput" class="output-textarea-custom" readonly style="display:none;"></textarea>
+</div>
+
+<style>
+    /* Reuse previous styles from your library */
+    .input-field { padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+</style>
+
+<script>
+    function findAndReplace() {
+        const text = document.getElementById('textInput').value;
+        const find = document.getElementById('findText').value;
+        const replace = document.getElementById('replaceText').value;
+        
+        if (!find) return alert("Please enter text to find.");
+        
+        const regex = new RegExp(find, 'g');
+        const matches = text.match(regex);
+        const count = matches ? matches.length : 0;
+        const newText = text.replace(regex, replace);
+        
+        document.getElementById('textOutput').value = newText;
+        document.getElementById('textOutput').style.display = 'block';
+        document.getElementById('replaceCount').innerText = count;
+        document.getElementById('statusBadge').innerText = "DONE";
+    }
+
+    function clearAll() {
+        document.getElementById('textInput').value = '';
+        document.getElementById('findText').value = '';
+        document.getElementById('replaceText').value = '';
+        document.getElementById('textOutput').style.display = 'none';
+        document.getElementById('replaceCount').innerText = '0';
+        document.getElementById('statusBadge').innerText = 'READY';
+    }
+</script>
