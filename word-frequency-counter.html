@@ -1,0 +1,201 @@
+<div class="tool-card-custom">
+    <div class="tool-header">
+        <h2>📊 Word Frequency Counter</h2>
+        <p>Analyze your text to find the most frequently used words and keyword density instantly.</p>
+    </div>
+    
+    <textarea id="textInputFrequency" class="input-textarea-custom" placeholder="Paste your text here to analyze word density..." oninput="updateInputStats()"></textarea>
+    
+    <div class="controls-grid-frequency">
+        <div class="input-group-checkbox">
+            <label class="checkbox-container">
+                <input type="checkbox" id="ignoreStopWords" checked>
+                <span class="checkmark"></span>
+                Ignore Common Stop Words (the, is, at, on, etc.)
+            </label>
+        </div>
+        <div class="input-group-checkbox">
+            <label class="checkbox-container">
+                <input type="checkbox" id="caseSensitive">
+                <span class="checkmark"></span>
+                Case Sensitive Search
+            </label>
+        </div>
+    </div>
+
+    <div class="action-row-custom">
+        <button class="btn-custom btn-primary-custom" onclick="calculateWordFrequency()">
+            📊 Analyze Frequency
+        </button>
+        <button class="btn-custom btn-reset-custom" onclick="clearAllFrequencyTool()">Reset</button>
+    </div>
+
+    <div class="stats-grid-custom" style="margin-bottom: 20px;">
+        <div class="stat-box">
+            <span class="stat-value" id="totalWordsCount">0</span>
+            <span class="stat-label">TOTAL WORDS</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-value" id="uniqueWordsCount">0</span>
+            <span class="stat-label">UNIQUE WORDS</span>
+        </div>
+    </div>
+
+    <div id="outputContainerFrequency" style="display:none; margin-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <label style="font-size: 0.9rem; font-weight: 600; color: #2d3436;">Keyword Density Results:</label>
+            <button class="btn-custom btn-copy-frequency" onclick="copyFrequencyReport()" style="padding: 6px 15px; font-size: 13px; background: #2ecc71; color: white; width: auto;">
+                📋 Copy Report
+            </button>
+        </div>
+        <div class="table-wrapper-custom">
+            <table class="frequency-table">
+                <thead>
+                    <tr>
+                        <th>Word / Keyword</th>
+                        <th>Count</th>
+                        <th>Density (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="frequencyTableBody">
+                    <!-- Dynamic Rows Insertion -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Premium UI Layout */
+    .tool-card-custom { background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #f0f0f0; max-width: 800px; margin: auto; font-family: 'Inter', sans-serif; }
+    .tool-header h2 { color: #2d3436; margin-bottom: 5px; font-size: 24px; }
+    .tool-header p { color: #636e72; font-size: 0.9rem; margin-bottom: 20px; }
+    .input-textarea-custom { width: 100%; height: 180px; padding: 15px; border: 2px solid #eef2f3; border-radius: 12px; margin-bottom: 15px; font-size: 14px; transition: border 0.3s; resize: vertical; }
+    .input-textarea-custom:focus { border-color: #6c5ce7; outline: none; }
+    
+    .controls-grid-frequency { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #edf2f7; }
+    .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: #2d3436; font-weight: 500; }
+    
+    .action-row-custom { display: flex; gap: 10px; margin-bottom: 20px; }
+    .btn-custom { padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: transform 0.2s, background 0.3s; font-size: 15px; }
+    .btn-primary-custom { background: #6c5ce7; color: white; flex: 2; }
+    .btn-primary-custom:hover { background: #5b4bd6; transform: translateY(-1px); }
+    .btn-reset-custom { background: #dfe6e9; color: #636e72; flex: 1; }
+    .btn-reset-custom:hover { background: #b2bec3; }
+    
+    .stats-grid-custom { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center; }
+    .stat-box { background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #edf2f7; }
+    .stat-value { display: block; font-size: 1.6rem; font-weight: 700; color: #6c5ce7; }
+    .stat-label { font-size: 0.7rem; color: #b2bec3; letter-spacing: 1px; font-weight: 600; }
+
+    /* Modern Table Style */
+    .table-wrapper-custom { max-height: 300px; overflow-y: auto; border: 1px solid #eef2f3; border-radius: 12px; margin-top: 10px; }
+    .frequency-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    .frequency-table th { background: #f1f2f6; color: #2d3436; font-weight: 600; padding: 12px; position: sticky; top: 0; }
+    .frequency-table td { padding: 12px; border-bottom: 1px solid #eef2f3; color: #2d3436; }
+    .frequency-table tr:hover { background: #f8f9fa; }
+</style>
+
+<script>
+    const stopWordsList = new Set(["a","about","above","after","again","against","all","am","an","and","any","are","arent","as","at","be","because","been","before","being","below","between","both","but","by","cant","cannot","could","couldnt","did","didnt","do","does","doesnt","doing","dont","down","during","each","few","for","from","further","had","hadnt","has","hasnt","have","havent","having","he","hed","hell","hes","her","here","heres","hers","herself","him","himself","his","how","hows","i","id","ill","im","ive","if","in","into","is","isnt","it","its","itself","lets","me","more","most","mustnt","my","myself","no","nor","not","of","off","on","once","only","or","other","ought","our","ours","ourselves","out","over","own","same","shant","she","shed","shell","shes","should","shouldnt","so","some","such","than","that","thats","the","their","theirs","them","themselves","then","there","theres","these","they","theyd","theyll","theyre","theyve","this","those","through","to","too","under","until","up","very","was","wasnt","we","wed","well","were","weve","werent","what","whats","when","whens","where","wheres","which","while","who","whos","whom","why","whys","with","wont","would","wouldnt","you","youd","youll","youre","youve","your","yours","yourself","yourselves"]);
+
+    function updateInputStats() {
+        const text = document.getElementById('textInputFrequency').value.trim();
+        const words = text ? text.match(/\b\w+\b/g) : [];
+        document.getElementById('totalWordsCount').innerText = words ? words.length : 0;
+    }
+
+    function calculateWordFrequency() {
+        const text = document.getElementById('textInputFrequency').value;
+        if (!text.trim()) return alert("Please enter some text to analyze.");
+
+        const ignoreStop = document.getElementById('ignoreStopWords').checked;
+        const caseSensitive = document.getElementById('caseSensitive').checked;
+
+        // Clean text and extract words
+        let cleanText = text.replace(/[^\w\s]/g, ' ');
+        let words = cleanText.match(/\b\w+\b/g) || [];
+        
+        const totalWords = words.length;
+        document.getElementById('totalWordsCount').innerText = totalWords;
+
+        let frequencyMap = {};
+        let uniqueWordsCount = 0;
+
+        words.forEach(word => {
+            let processedWord = caseSensitive ? word : word.toLowerCase();
+            
+            if (ignoreStop && stopWordsList.has(processedWord.toLowerCase())) {
+                return;
+            }
+
+            if (!frequencyMap[processedWord]) {
+                frequencyMap[processedWord] = 0;
+                uniqueWordsCount++;
+            }
+            frequencyMap[processedWord]++;
+        });
+
+        document.getElementById('uniqueWordsCount').innerText = uniqueWordsCount;
+
+        // Sort by frequency
+        let sortedWords = Object.keys(frequencyMap).map(word => {
+            return {
+                word: word,
+                count: frequencyMap[word],
+                density: ((frequencyMap[word] / totalWords) * 100).toFixed(2)
+            };
+        }).sort((a, b) => b.count - a.count);
+
+        // Render Table
+        const tbody = document.getElementById('frequencyTableBody');
+        tbody.innerHTML = '';
+
+        if (sortedWords.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#636e72;">No words found (try unchecking 'Ignore Stop Words').</td></tr>`;
+        } else {
+            sortedWords.forEach(item => {
+                let row = `<tr>
+                    <td style="font-weight:600; color:#6c5ce7;">${item.word}</td>
+                    <td>${item.count}</td>
+                    <td>${item.density}%</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        document.getElementById('outputContainerFrequency').style.display = 'block';
+    }
+
+    function clearAllFrequencyTool() {
+        document.getElementById('textInputFrequency').value = '';
+        document.getElementById('frequencyTableBody').innerHTML = '';
+        document.getElementById('outputContainerFrequency').style.display = 'none';
+        document.getElementById('totalWordsCount').innerText = '0';
+        document.getElementById('uniqueWordsCount').innerText = '0';
+    }
+
+    function copyFrequencyReport() {
+        const rows = document.querySelectorAll('#frequencyTableBody tr');
+        let reportText = "Word/Keyword, Count, Density\n";
+        
+        rows.forEach(row => {
+            const cols = row.querySelectorAll('td');
+            if(cols.length >= 3) {
+                reportText += `${cols[0].innerText}, ${cols[1].innerText}, ${cols[2].innerText}\n`;
+            }
+        });
+
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = reportText;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextArea);
+
+        const copyBtn = document.querySelector('.btn-copy-frequency');
+        const originalText = copyBtn.innerHTML;
+        copyBtn.innerHTML = "✅ Report Copied!";
+        setTimeout(() => { copyBtn.innerHTML = originalText; }, 2000);
+    }
+</script>
