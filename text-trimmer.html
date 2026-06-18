@@ -1,0 +1,139 @@
+<div class="tool-card-custom">
+    <div class="tool-header">
+        <h2>✂️ Advanced Text Trimmer</h2>
+        <p>Remove unwanted leading, trailing, or extra whitespaces from your text instantly.</p>
+    </div>
+    
+    <textarea id="textInputTrimmer" class="input-textarea-custom" placeholder="Paste your text here...&#10;   Example with leading spaces&#10;Example with trailing spaces   &#10;   Both sides trimmed   " oninput="updateTrimmerStats()"></textarea>
+    
+    <div class="controls-grid-trimmer">
+        <div class="input-group-checkbox">
+            <label class="checkbox-container">
+                <input type="checkbox" id="trimLeading" checked>
+                <span class="checkmark"></span>
+                Trim Leading Spaces (Start)
+            </label>
+        </div>
+        <div class="input-group-checkbox">
+            <label class="checkbox-container">
+                <input type="checkbox" id="trimTrailing" checked>
+                <span class="checkmark"></span>
+                Trim Trailing Spaces (End)
+            </label>
+        </div>
+        <div class="input-group-checkbox" style="grid-column: span 2;">
+            <label class="checkbox-container">
+                <input type="checkbox" id="collapseSpaces">
+                <span class="checkmark"></span>
+                Collapse Extra Internal Spaces (Convert multiple spaces into a single space)
+            </label>
+        </div>
+    </div>
+
+    <div class="action-row-custom">
+        <button class="btn-custom btn-primary-custom" onclick="processTextTrim()">
+            ⚡ Trim Text
+        </button>
+        <button class="btn-custom btn-reset-custom" onclick="clearAllTrimmerTool()">Reset</button>
+    </div>
+
+    <div class="stats-grid-custom">
+        <div class="stat-box">
+            <span class="stat-value" id="charCountBefore">0</span>
+            <span class="stat-label">ORIGINAL CHARS</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-value" id="charCountAfter">0</span>
+            <span class="stat-label">TRIMMED CHARS</span>
+        </div>
+    </div>
+
+    <div id="outputContainerTrimmer" style="display:none; margin-top: 20px;">
+        <label style="font-size: 0.8rem; font-weight: 600; color: #b2bec3; display: block; margin-bottom: 5px;">Cleaned Output Result:</label>
+        <textarea id="textOutputTrimmer" class="output-textarea-custom" readonly></textarea>
+        <button class="btn-custom btn-copy-trimmer" onclick="copyTrimmerResult()" style="margin-top:10px; width: 100%; background: #2ecc71; color: white;">
+            📋 Copy Cleaned Text
+        </button>
+    </div>
+</div>
+
+<style>
+    /* Premium UI Layout */
+    .tool-card-custom { background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #f0f0f0; max-width: 800px; margin: auto; font-family: 'Inter', sans-serif; }
+    .tool-header h2 { color: #2d3436; margin-bottom: 5px; font-size: 24px; }
+    .tool-header p { color: #636e72; font-size: 0.9rem; margin-bottom: 20px; }
+    .input-textarea-custom, .output-textarea-custom { width: 100%; height: 160px; padding: 15px; border: 2px solid #eef2f3; border-radius: 12px; margin-bottom: 15px; font-size: 14px; transition: border 0.3s; font-family: monospace; white-space: pre; overflow-x: auto; }
+    .input-textarea-custom:focus { border-color: #6c5ce7; outline: none; }
+    
+    .controls-grid-trimmer { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #edf2f7; }
+    
+    /* Custom Checkbox Config */
+    .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: #2d3436; font-weight: 500; }
+    
+    .action-row-custom { display: flex; gap: 10px; margin-bottom: 20px; }
+    .btn-custom { padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: transform 0.2s, background 0.3s; font-size: 15px; }
+    .btn-primary-custom { background: #6c5ce7; color: white; flex: 2; }
+    .btn-primary-custom:hover { background: #5b4bd6; transform: translateY(-1px); }
+    .btn-reset-custom { background: #dfe6e9; color: #636e72; flex: 1; }
+    .btn-reset-custom:hover { background: #b2bec3; }
+    
+    .stats-grid-custom { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center; }
+    .stat-box { background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #edf2f7; }
+    .stat-value { display: block; font-size: 1.6rem; font-weight: 700; color: #6c5ce7; }
+    .stat-label { font-size: 0.7rem; color: #b2bec3; letter-spacing: 1px; font-weight: 600; }
+</style>
+
+<script>
+    function updateTrimmerStats() {
+        const text = document.getElementById('textInputTrimmer').value;
+        document.getElementById('charCountBefore').innerText = text.length;
+    }
+
+    function processTextTrim() {
+        const text = document.getElementById('textInputTrimmer').value;
+        if (!text) return alert("Please enter some text to trim.");
+
+        const trimLeading = document.getElementById('trimLeading').checked;
+        const trimTrailing = document.getElementById('trimTrailing').checked;
+        const collapseSpaces = document.getElementById('collapseSpaces').checked;
+
+        let lines = text.split('\n');
+
+        let processedLines = lines.map(line => {
+            let tempLine = line;
+            if (trimLeading) tempLine = tempLine.replace(/^\s+/, '');
+            if (trimTrailing) tempLine = tempLine.replace(/\s+$/, '');
+            if (collapseSpaces) tempLine = tempLine.replace(/\s+/g, ' ');
+            return tempLine;
+        });
+
+        const resultText = processedLines.join('\n');
+        
+        document.getElementById('textOutputTrimmer').value = resultText;
+        document.getElementById('charCountAfter').innerText = resultText.length;
+        document.getElementById('outputContainerTrimmer').style.display = 'block';
+        document.getElementById('charCountAfter').style.color = "#2ecc71";
+    }
+
+    function clearAllTrimmerTool() {
+        document.getElementById('textInputTrimmer').value = '';
+        document.getElementById('textOutputTrimmer').value = '';
+        document.getElementById('outputContainerTrimmer').style.display = 'none';
+        document.getElementById('charCountBefore').innerText = '0';
+        document.getElementById('charCountAfter').innerText = '0';
+        document.getElementById('charCountAfter').style.color = '#6c5ce7';
+    }
+
+    function copyTrimmerResult() {
+        const output = document.getElementById('textOutputTrimmer');
+        output.select();
+        document.execCommand('copy');
+        
+        const copyBtn = document.querySelector('.btn-copy-trimmer');
+        const originalText = copyBtn.innerHTML;
+        copyBtn.innerHTML = "✅ Copied Successfully!";
+        setTimeout(() => {
+            copyBtn.innerHTML = originalText;
+        }, 2000);
+    }
+</script>
