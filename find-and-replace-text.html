@@ -1,15 +1,26 @@
 <div class="tool-card-custom">
-    <h2>🔍 Find and Replace</h2>
+    <div class="tool-header">
+        <h2>🔍 Find and Replace Text</h2>
+        <p>Perform global search and replace operations instantly.</p>
+    </div>
     
-    <textarea id="textInput" class="input-textarea-custom" placeholder="Paste your text here..."></textarea>
+    <textarea id="textInput" class="input-textarea-custom" placeholder="Paste your source text here..."></textarea>
     
-    <div class="controls-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-        <input type="text" id="findText" class="input-field" placeholder="Find what...">
-        <input type="text" id="replaceText" class="input-field" placeholder="Replace with...">
+    <div class="controls-grid">
+        <div class="input-group">
+            <label>Find</label>
+            <input type="text" id="findText" class="input-field" placeholder="Search for...">
+        </div>
+        <div class="input-group">
+            <label>Replace with</label>
+            <input type="text" id="replaceText" class="input-field" placeholder="Replace with...">
+        </div>
     </div>
 
     <div class="action-row-custom">
-        <button class="btn-custom btn-primary-custom" onclick="findAndReplace()">Replace Now</button>
+        <button class="btn-custom btn-primary-custom" onclick="findAndReplace()">
+            <i class="fas fa-sync-alt"></i> Replace Now
+        </button>
         <button class="btn-custom btn-reset-custom" onclick="clearAll()">Reset</button>
     </div>
 
@@ -24,12 +35,31 @@
         </div>
     </div>
 
-    <textarea id="textOutput" class="output-textarea-custom" readonly style="display:none;"></textarea>
+    <div id="outputContainer" style="display:none; margin-top: 20px;">
+        <label>Result:</label>
+        <textarea id="textOutput" class="output-textarea-custom" readonly></textarea>
+        <button class="btn-custom btn-copy" onclick="copyToClipboard()" style="margin-top:10px; width: 100%;">Copy Result</button>
+    </div>
 </div>
 
 <style>
-    /* Reuse previous styles from your library */
-    .input-field { padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+    .tool-card-custom { background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #f0f0f0; max-width: 800px; margin: auto; }
+    .tool-header h2 { color: #2d3436; margin-bottom: 5px; }
+    .tool-header p { color: #636e72; font-size: 0.9rem; margin-bottom: 20px; }
+    .input-textarea-custom, .output-textarea-custom { width: 100%; height: 150px; padding: 15px; border: 2px solid #eef2f3; border-radius: 12px; margin-bottom: 15px; font-size: 14px; transition: border 0.3s; }
+    .input-textarea-custom:focus { border-color: #6c5ce7; outline: none; }
+    .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+    .input-group label { font-size: 0.8rem; font-weight: 600; color: #b2bec3; display: block; margin-bottom: 5px; }
+    .input-field { width: 100%; padding: 12px; border: 2px solid #eef2f3; border-radius: 8px; font-size: 14px; }
+    .action-row-custom { display: flex; gap: 10px; margin-bottom: 20px; }
+    .btn-custom { padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: transform 0.2s, background 0.3s; }
+    .btn-primary-custom { background: #6c5ce7; color: white; flex: 2; }
+    .btn-primary-custom:hover { background: #5b4bd6; }
+    .btn-reset-custom { background: #dfe6e9; color: #636e72; flex: 1; }
+    .stats-grid-custom { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center; }
+    .stat-box { background: #f8f9fa; padding: 15px; border-radius: 12px; }
+    .stat-value { display: block; font-size: 1.5rem; font-weight: 700; color: #6c5ce7; }
+    .stat-label { font-size: 0.7rem; color: #b2bec3; letter-spacing: 1px; }
 </style>
 
 <script>
@@ -37,16 +67,17 @@
         const text = document.getElementById('textInput').value;
         const find = document.getElementById('findText').value;
         const replace = document.getElementById('replaceText').value;
+        if (!find) return alert("Please enter the text to find.");
         
-        if (!find) return alert("Please enter text to find.");
-        
-        const regex = new RegExp(find, 'g');
+        // Escape special regex characters in find string
+        const escapedFind = find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escapedFind, 'g');
         const matches = text.match(regex);
         const count = matches ? matches.length : 0;
         const newText = text.replace(regex, replace);
         
         document.getElementById('textOutput').value = newText;
-        document.getElementById('textOutput').style.display = 'block';
+        document.getElementById('outputContainer').style.display = 'block';
         document.getElementById('replaceCount').innerText = count;
         document.getElementById('statusBadge').innerText = "DONE";
     }
@@ -55,8 +86,15 @@
         document.getElementById('textInput').value = '';
         document.getElementById('findText').value = '';
         document.getElementById('replaceText').value = '';
-        document.getElementById('textOutput').style.display = 'none';
+        document.getElementById('outputContainer').style.display = 'none';
         document.getElementById('replaceCount').innerText = '0';
         document.getElementById('statusBadge').innerText = 'READY';
+    }
+
+    function copyToClipboard() {
+        const output = document.getElementById('textOutput');
+        output.select();
+        document.execCommand('copy');
+        alert("Copied to clipboard!");
     }
 </script>
